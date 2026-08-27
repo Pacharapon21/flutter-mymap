@@ -4,6 +4,7 @@ import '../models/user_model.dart';
 import '../services/api_service.dart';
 import '../widgets/app_drawer.dart';
 import 'feed_page.dart';
+import 'friends_page.dart';
 import 'profile_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,12 +21,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     const FeedPage(),
-    const Center(
-      child: Text(
-        'เพื่อนที่ใช้งาน (Coming Soon)',
-        style: TextStyle(fontSize: 18),
-      ),
-    ),
+    const FriendsPage(),
     ProfilePage(),
   ];
 

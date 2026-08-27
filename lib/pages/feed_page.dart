@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import '../widgets/check_in_dialog.dart';
 import '../services/api_service.dart';
 import '../models/location_model.dart';
+import 'map_detail_page.dart';
 
 class FeedPage extends StatefulWidget {
   const FeedPage({super.key});
@@ -53,30 +54,30 @@ class _FeedPageState extends State<FeedPage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.indigo))
           : _checkIns.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.location_off, size: 64, color: Colors.grey[400]),
-                      const SizedBox(height: 16),
-                      Text(
-                        'ยังไม่มีการเช็คอิน',
-                        style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.location_off, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'ยังไม่มีการเช็คอิน',
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
                   ),
-                )
-              : RefreshIndicator(
-                  color: Colors.indigo,
-                  onRefresh: _loadCheckIns,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.only(top: 12.0, bottom: 88.0),
-                    itemCount: _checkIns.length,
-                    itemBuilder: (context, index) {
-                      return _buildLocationCard(context, _checkIns[index]);
-                    },
-                  ),
-                ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              color: Colors.indigo,
+              onRefresh: _loadCheckIns,
+              child: ListView.builder(
+                padding: const EdgeInsets.only(top: 12.0, bottom: 88.0),
+                itemCount: _checkIns.length,
+                itemBuilder: (context, index) {
+                  return _buildLocationCard(context, _checkIns[index]);
+                },
+              ),
+            ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           await showDialog(
@@ -120,7 +121,9 @@ class _FeedPageState extends State<FeedPage> {
                 child: Text(
                   userInitial,
                   style: const TextStyle(
-                      color: Colors.indigo, fontWeight: FontWeight.bold),
+                    color: Colors.indigo,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               title: Text(
@@ -132,8 +135,7 @@ class _FeedPageState extends State<FeedPage> {
                 style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
               trailing: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.orange.shade100,
                   borderRadius: BorderRadius.circular(8),
@@ -161,62 +163,99 @@ class _FeedPageState extends State<FeedPage> {
                   Expanded(
                     child: Text(
                       'Lat: ${checkIn.lat.toStringAsFixed(4)}  Lng: ${checkIn.lng.toStringAsFixed(4)}',
-                      style:
-                          TextStyle(color: Colors.grey[800], fontSize: 13),
+                      style: TextStyle(color: Colors.grey[800], fontSize: 13),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text('Open Maps'),
-                  ),
+                  TextButton(onPressed: () {}, child: const Text('Open Maps')),
                 ],
               ),
             ),
 
-            // แผนที่ Preview
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: SizedBox(
-                height: 160,
-                width: double.infinity,
-                child: FlutterMap(
-                  options: MapOptions(
-                    initialCenter: latLng,
-                    initialZoom: 14.0,
-                    interactionOptions: const InteractionOptions(
-                      flags: InteractiveFlag.none,
-                    ),
+            // แผนที่ Preview — กดเพื่อเปิดหน้าแผนที่เต็มจอ
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MapDetailPage(checkIn: checkIn),
                   ),
+                );
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Stack(
                   children: [
-                    TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.appflutter.locationapp',
-                    ),
-                    MarkerLayer(
-                      markers: [
-                        Marker(
-                          point: latLng,
-                          width: 40,
-                          height: 40,
-                          child: const Icon(
-                            Icons.place,
-                            color: Colors.indigo,
-                            size: 40,
+                    SizedBox(
+                      height: 160,
+                      width: double.infinity,
+                      child: FlutterMap(
+                        options: MapOptions(
+                          initialCenter: latLng,
+                          initialZoom: 14.0,
+                          interactionOptions: const InteractionOptions(
+                            flags: InteractiveFlag.none,
                           ),
                         ),
-                      ],
+                        children: [
+                          TileLayer(
+                            urlTemplate:
+                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            userAgentPackageName: 'com.appflutter.locationapp',
+                          ),
+                          MarkerLayer(
+                            markers: [
+                              Marker(
+                                point: latLng,
+                                width: 40,
+                                height: 40,
+                                child: const Icon(
+                                  Icons.place,
+                                  color: Colors.indigo,
+                                  size: 40,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Overlay hint icon
+                    Positioned(
+                      bottom: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.fullscreen, color: Colors.white, size: 14),
+                            SizedBox(width: 4),
+                            Text(
+                              'ดูแผนที่',
+                              style: TextStyle(color: Colors.white, fontSize: 11),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
 
-            if (checkIn.description != null && checkIn.description!.isNotEmpty) ...[
+            if (checkIn.description != null &&
+                checkIn.description!.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(
                 checkIn.description!,
-                style: TextStyle(color: Colors.grey[800], fontStyle: FontStyle.italic),
+                style: TextStyle(
+                  color: Colors.grey[800],
+                  fontStyle: FontStyle.italic,
+                ),
               ),
             ],
           ],

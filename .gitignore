@@ -43,3 +43,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment variables / Secrets
+.env
+.env.*
+*.env
+
+# Secret credentials
+service-account*.json
+google-services-account.json

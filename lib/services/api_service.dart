@@ -229,4 +229,67 @@ class ApiService {
       throw Exception('Failed to load check-ins: ${response.body}');
     }
   }
+
+  // =========================
+  // SEARCH USERS
+  // ค้นหาผู้ใช้จาก check-ins (deduplicate by user id)
+  // กรองด้วยชื่อที่ส่งมา (case-insensitive)
+  // =========================
+  Future<List<UserModel>> searchUsers(String query) async {
+    final checkIns = await getCheckIns();
+
+    // สร้าง map ของ user_id → UserModel (เพื่อ deduplicate)
+    final Map<int, UserModel> userMap = {};
+
+    for (final checkIn in checkIns) {
+      final user = checkIn.user;
+      if (user != null && !userMap.containsKey(user.id)) {
+        userMap[user.id] = user;
+      }
+    }
+
+    // กรองด้วย query
+    final lowerQuery = query.toLowerCase().trim();
+    if (lowerQuery.isEmpty) {
+      return userMap.values.toList();
+    }
+
+    return userMap.values
+        .where((u) => u.name.toLowerCase().contains(lowerQuery))
+        .toList();
+  }
+
+  // =========================
+  // GET FRIEND CHECK-INS
+  // ดึง check-ins ทั้งหมด แล้วกรองให้เหลือเฉพาะ user_ids ที่ระบุ
+  // คืนค่าเฉพาะ check-in ล่าสุดของแต่ละคน
+  // =========================
+  Future<Map<int, LocationModel>> getLatestCheckInsForFriends(
+    List<int> friendIds,
+  ) async {
+    if (friendIds.isEmpty) return {};
+
+    final checkIns = await getCheckIns();
+
+    // Group check-ins ตาม userId และเก็บเฉพาะอันล่าสุด
+    final Map<int, LocationModel> latestMap = {};
+
+    for (final checkIn in checkIns) {
+      final userId = checkIn.userId;
+      if (userId == null || !friendIds.contains(userId)) continue;
+
+      if (!latestMap.containsKey(userId)) {
+        latestMap[userId] = checkIn;
+      } else {
+        final existing = latestMap[userId]!;
+        final existingTime = DateTime.tryParse(existing.createdAt) ?? DateTime(0);
+        final newTime = DateTime.tryParse(checkIn.createdAt) ?? DateTime(0);
+        if (newTime.isAfter(existingTime)) {
+          latestMap[userId] = checkIn;
+        }
+      }
+    }
+
+    return latestMap;
+  }
 }

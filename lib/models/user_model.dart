@@ -1,7 +1,7 @@
 class UserModel {
   final int id;
   final String name;
-  final String email;
+  final String? email;
   final bool isVerified;
   final String? profileImage;
   final String? coverImage;
@@ -10,8 +10,8 @@ class UserModel {
   UserModel({
     required this.id,
     required this.name,
-    required this.email,
-    required this.isVerified,
+    this.email,
+    this.isVerified = false,
     this.profileImage,
     this.coverImage,
     this.bio,
@@ -21,7 +21,7 @@ class UserModel {
     return UserModel(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
-      email: json['email'] ?? '',
+      email: json['email'],
       isVerified: json['isVerified'] ?? false,
       profileImage: json['profileImage'],
       coverImage: json['coverImage'],

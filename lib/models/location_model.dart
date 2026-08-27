@@ -2,6 +2,7 @@ import 'user_model.dart';
 
 class LocationModel {
   final int id;
+  final int? userId;
   final double lat;
   final double lng;
   final String? locationName;
@@ -14,6 +15,7 @@ class LocationModel {
 
   LocationModel({
     required this.id,
+    this.userId,
     required this.lat,
     required this.lng,
     this.locationName,
@@ -28,6 +30,7 @@ class LocationModel {
   factory LocationModel.fromJson(Map<String, dynamic> json) {
     return LocationModel(
       id: json['id'] ?? 0,
+      userId: json['userId'] ?? json['user']?['id'],
       lat: (json['lat'] ?? 0).toDouble(),
       lng: (json['lng'] ?? 0).toDouble(),
       locationName: json['locationName'],
@@ -43,6 +46,7 @@ class LocationModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'userId': userId,
       'lat': lat,
       'lng': lng,
       'locationName': locationName,

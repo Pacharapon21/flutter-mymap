@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../models/friend_model.dart';
 import '../models/user_model.dart';
 import '../models/location_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
+import 'map_detail_page.dart';
 
 class FriendsPage extends StatefulWidget {
   const FriendsPage({super.key});
@@ -224,108 +226,128 @@ class _FriendsPageState extends State<FriendsPage> {
         await _removeFriend(friend);
         return false; // let _loadData handle the refresh
       },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              // Avatar with online indicator
-              Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor: const Color(0xFFE8EAF6),
-                    child: Text(
-                      initial,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF3F51B5),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: activityColor,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 14),
-              // Friend info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      friend.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2D3250),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    if (checkIn != null) ...[
-                      Row(
-                        children: [
-                          Icon(Icons.location_on, size: 13, color: Colors.indigo.shade300),
-                          const SizedBox(width: 3),
-                          Expanded(
-                            child: Text(
-                              checkIn.locationName ?? 'เช็คอินแล้ว',
-                              style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Icon(Icons.access_time, size: 12, color: Colors.grey.shade400),
-                          const SizedBox(width: 3),
-                          Text(
-                            _formatLastSeen(checkIn.createdAt),
-                            style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-                          ),
-                        ],
-                      ),
-                    ] else
-                      Text(
-                        'ยังไม่มีการเช็คอิน',
-                        style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
-                      ),
-                  ],
-                ),
-              ),
-              // Remove button
-              IconButton(
-                icon: Icon(Icons.person_remove_outlined, color: Colors.red.shade300, size: 22),
-                onPressed: () => _removeFriend(friend),
-                tooltip: 'ลบเพื่อน',
+      child: InkWell(
+        onTap: checkIn != null
+            ? () {
+                Get.to(() => MapDetailPage(checkIn: checkIn));
+              }
+            : null,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
               ),
             ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                // Avatar with online indicator
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 26,
+                      backgroundColor: const Color(0xFFEEF2FF),
+                      child: Text(
+                        initial,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF4F46E5),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        width: 13,
+                        height: 13,
+                        decoration: BoxDecoration(
+                          color: activityColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 14),
+                // Friend info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        friend.name,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      if (checkIn != null) ...[
+                        Row(
+                          children: [
+                            const Icon(Icons.location_on, size: 14, color: Color(0xFF4F46E5)),
+                            const SizedBox(width: 3),
+                            Expanded(
+                              child: Text(
+                                checkIn.locationName ?? 'เช็คอินแล้ว',
+                                style: const TextStyle(fontSize: 13, color: Color(0xFF4F46E5), fontWeight: FontWeight.w600),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Icon(Icons.access_time, size: 12, color: Colors.grey.shade400),
+                            const SizedBox(width: 3),
+                            Text(
+                              _formatLastSeen(checkIn.createdAt),
+                              style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                            ),
+                          ],
+                        ),
+                      ] else
+                        Text(
+                          'ยังไม่มีการเช็คอิน',
+                          style: TextStyle(fontSize: 12, color: Colors.grey.shade400),
+                        ),
+                    ],
+                  ),
+                ),
+                if (checkIn != null)
+                  Container(
+                    margin: const EdgeInsets.only(right: 4),
+                    child: IconButton(
+                      icon: const Icon(Icons.directions_rounded, color: Color(0xFF4F46E5), size: 24),
+                      tooltip: 'ดูเส้นทางไปหาเพื่อน',
+                      onPressed: () {
+                        Get.to(() => MapDetailPage(checkIn: checkIn));
+                      },
+                    ),
+                  ),
+                // Remove button
+                IconButton(
+                  icon: Icon(Icons.person_remove_outlined, color: Colors.red.shade300, size: 20),
+                  onPressed: () => _removeFriend(friend),
+                  tooltip: 'ลบเพื่อน',
+                ),
+              ],
+            ),
           ),
         ),
       ),

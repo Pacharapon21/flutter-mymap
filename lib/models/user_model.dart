@@ -18,14 +18,35 @@ class UserModel {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    int parsedId = 0;
+    if (json['id'] is int) {
+      parsedId = json['id'];
+    } else if (json['id'] != null) {
+      parsedId = int.tryParse(json['id'].toString()) ?? 0;
+    }
+
+    bool verified = false;
+    final v = json['isVerified'] ?? json['is_verified'];
+    if (v is bool) {
+      verified = v;
+    } else if (v is int) {
+      verified = v == 1;
+    } else if (v is String) {
+      verified = v.toLowerCase() == 'true' || v == '1';
+    }
+
     return UserModel(
-      id: json['id'] ?? 0,
-      name: json['name'] ?? '',
-      email: json['email'],
-      isVerified: json['isVerified'] ?? false,
-      profileImage: json['profileImage'],
-      coverImage: json['coverImage'],
-      bio: json['bio'],
+      id: parsedId,
+      name: (json['name'] ?? json['username'] ?? 'User').toString(),
+      email: json['email']?.toString(),
+      isVerified: verified,
+      profileImage: json['profileImage']?.toString() ??
+          json['profile_image']?.toString() ??
+          json['avatar']?.toString() ??
+          json['image']?.toString(),
+      coverImage: json['coverImage']?.toString() ??
+          json['cover_image']?.toString(),
+      bio: json['bio']?.toString(),
     );
   }
 
@@ -40,4 +61,25 @@ class UserModel {
       'bio': bio,
     };
   }
+
+  UserModel copyWith({
+    int? id,
+    String? name,
+    String? email,
+    bool? isVerified,
+    String? profileImage,
+    String? coverImage,
+    String? bio,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      isVerified: isVerified ?? this.isVerified,
+      profileImage: profileImage ?? this.profileImage,
+      coverImage: coverImage ?? this.coverImage,
+      bio: bio ?? this.bio,
+    );
+  }
 }
+

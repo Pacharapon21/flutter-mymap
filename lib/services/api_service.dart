@@ -141,11 +141,19 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      return UserModel.fromJson(data['user']);
+      final dynamic decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        if (decoded.containsKey('user') && decoded['user'] is Map<String, dynamic>) {
+          return UserModel.fromJson(decoded['user']);
+        } else if (decoded.containsKey('data') && decoded['data'] is Map<String, dynamic>) {
+          return UserModel.fromJson(decoded['data']);
+        } else {
+          return UserModel.fromJson(decoded);
+        }
+      }
+      throw Exception('Invalid user data format');
     } else {
-      throw Exception('Failed to load user profile: ${response.body}');
+      throw Exception('Failed to load user profile (${response.statusCode}): ${response.body}');
     }
   }
 

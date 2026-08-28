@@ -50,25 +50,46 @@ class _FeedPageState extends State<FeedPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFFF8FAFC),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.indigo))
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(color: Color(0xFF4F46E5)),
+                  SizedBox(height: 12),
+                  Text('กำลังโหลดฟีดเช็คอิน...', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                ],
+              ),
+            )
           : _checkIns.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.location_off, size: 64, color: Colors.grey[400]),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.indigo.shade50,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.location_off_rounded, size: 54, color: Color(0xFF4F46E5)),
+                  ),
                   const SizedBox(height: 16),
+                  const Text(
+                    'ยังไม่มีการเช็คอินในระบบ',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                  ),
+                  const SizedBox(height: 6),
                   Text(
-                    'ยังไม่มีการเช็คอิน',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                    'กดปุ่ม "เช็คอินตอนนี้" ด้านล่างเพื่อแชร์พิกัดเป็นคนแรก!',
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
                   ),
                 ],
               ),
             )
           : RefreshIndicator(
-              color: Colors.indigo,
+              color: const Color(0xFF4F46E5),
               onRefresh: _loadCheckIns,
               child: ListView.builder(
                 padding: const EdgeInsets.only(top: 12.0, bottom: 88.0),
@@ -84,30 +105,31 @@ class _FeedPageState extends State<FeedPage> {
             context: context,
             builder: (context) => const CheckInDialog(),
           );
-          // รีโหลดหลังจากเช็คอินสำเร็จ
           _loadCheckIns();
         },
-        icon: const Icon(Icons.add_location, color: Colors.white),
+        icon: const Icon(Icons.add_location_alt_rounded, color: Colors.white),
         label: const Text(
-          'Check-in Now',
+          'เช็คอินตอนนี้',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.indigoAccent,
+        backgroundColor: const Color(0xFF4F46E5),
       ),
     );
   }
 
   Widget _buildLocationCard(BuildContext context, LocationModel checkIn) {
     final latLng = LatLng(checkIn.lat, checkIn.lng);
-    // ใช้ชื่อจาก user ที่ฝังมากับข้อมูลเช็คอิน ไม่ใช่คนที่ล็อกอินอยู่
-    final userName = checkIn.user?.name ?? 'Unknown User';
-    final userInitial = userName.isNotEmpty ? userName[0].toUpperCase() : '?';
+    final userName = checkIn.user?.name ?? 'ไม่ระบุชื่อผู้ใช้';
+    final userInitial = userName.isNotEmpty ? userName[0].toUpperCase() : 'U';
     final dateStr = _formatDate(checkIn.createdAt);
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: Color(0xFFE2E8F0)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -117,34 +139,34 @@ class _FeedPageState extends State<FeedPage> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: CircleAvatar(
-                backgroundColor: Colors.indigo.shade100,
+                backgroundColor: const Color(0xFFEEF2FF),
                 child: Text(
                   userInitial,
                   style: const TextStyle(
-                    color: Colors.indigo,
+                    color: Color(0xFF4F46E5),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
               title: Text(
                 userName,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF1E293B)),
               ),
               subtitle: Text(
                 dateStr,
-                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
               ),
               trailing: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.orange.shade100,
-                  borderRadius: BorderRadius.circular(8),
+                  color: const Color(0xFFEEF2FF),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Text(
                   'Check-in',
                   style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.deepOrange,
+                    fontSize: 11,
+                    color: Color(0xFF4F46E5),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -153,7 +175,7 @@ class _FeedPageState extends State<FeedPage> {
 
             const Divider(),
 
-            // พิกัด
+            // พิกัด & ปุ่มดูเส้นทาง
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Row(
@@ -166,7 +188,21 @@ class _FeedPageState extends State<FeedPage> {
                       style: TextStyle(color: Colors.grey[800], fontSize: 13),
                     ),
                   ),
-                  TextButton(onPressed: () {}, child: const Text('Open Maps')),
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MapDetailPage(checkIn: checkIn),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.directions_rounded, size: 16, color: Color(0xFF4F46E5)),
+                    label: const Text(
+                      'ดูเส้นทาง',
+                      style: TextStyle(color: Color(0xFF4F46E5), fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ],
               ),
             ),
